@@ -35,3 +35,28 @@ def plot_curve_error(data_mean, data_std, x_label, y_label, title, filename=None
 
         fig.savefig(filename)
         pass
+
+def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std, data2_label, x_label, y_label, title, filename=None):
+    
+    fig = plt.figure(figsize=(8, 6))
+    plt.title(title)
+
+    alpha = 0.3
+
+    plt.plot(range(len(data1_mean)), data1_mean, '-', color = 'blue', label = data1_label)
+    plt.fill_between(range(len(data1_mean)), data1_mean - data1_std, data1_mean + data1_std, facecolor = 'blue', alpha = alpha)
+
+    plt.plot(range(len(data2_mean)), data2_mean, '-', color = 'red', label = data2_label)
+    plt.fill_between(range(len(data2_mean)), data2_mean - data2_std, data2_mean + data2_std, facecolor = 'red', alpha = alpha)
+
+    plt.legend()
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+
+    plt.tight_layout()
+    plt.show()
+
+    if filename is not None:
+
+        fig.savefig(filename)
+        pass
