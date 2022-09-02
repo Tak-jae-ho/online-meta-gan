@@ -14,3 +14,24 @@ def plot_image_grid(output, img_size, n_row, steps=None, sample_path=None, save=
 
     if save:
         plt.savefig(sample_path + '/steps_%d' %(steps))
+
+def plot_curve_error(data_mean, data_std, x_label, y_label, title, filename=None):
+
+    fig = plt.figure(figsize=(8, 6))
+    plt.title(title)
+
+    alpha = 0.3
+
+    plt.plot(range(len(data_mean)), data_mean, '-', color = 'red')
+    plt.fill_between(range(len(data_mean)), data_mean - data_std, data_mean + data_std, facecolor = 'blue', alpha = alpha)
+
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+
+    plt.tight_layout()
+    plt.show()
+
+    if filename is not None:
+
+        fig.savefig(filename)
+        pass
