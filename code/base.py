@@ -13,7 +13,10 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from torchsummary import summary
 
-# Path
+# Parser
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--eval_freq', default=50, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
 
 # Load Data
@@ -124,6 +127,17 @@ for epoch in tqdm(range(n_epoch)):
         prediction_real_batch.append(prediction_real.mean().item())
         prediction_fake_batch.append(prediction_fake.mean().item())
 
+    if epoch % args.eval_freq == 0:
+        # Plot Result
+        print("------------------Save Samples----------------------")
+        generator.eval()
+        discriminator.eval()
+        
+        noise = torch.randn(100, dim_latent, 1, 1, device=device)
+        generated_images = generator(noise)
+
+        out_grid = plot_image_grid(generated_images, 32, 10, epoch, args.result_path)
+    
     # save losses & predicition values
     loss_discriminator_mean[epoch] = np.mean(loss_discriminator_batch)
     loss_discriminator_std[epoch] = np.std(loss_discriminator_batch)
@@ -135,9 +149,5 @@ for epoch in tqdm(range(n_epoch)):
     prediction_fake_std[epoch] = np.std(prediciton_fake_batch)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
-
-# Plot Result
-generator.eval()
-discriminator.eval()
-
-plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', ars.result_path)
+    plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', args.result_path)
+    plot_curve_error2(prediction_real_mean, prediction_real_std, 'D(x)', prediction_fake_mean, prediction_fake_std, 'D(G(z))', 'epoch', 'Output', 'Prediction Curve', args.result_path)

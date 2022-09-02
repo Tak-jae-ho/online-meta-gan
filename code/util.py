@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os
 from torchvision.utils import make_grid, save_image
 
-def plot_image_grid(output, img_size, n_row, steps=None, sample_path=None, save=False):
+def plot_image_grid(output, img_size, n_row, epoch, result_dir=None):
 
     out_grid = make_grid(output, normalize=True, nrow=n_row, scale_each=True, padding=int(0.125*img_size)).permute(1,2,0)
 
@@ -13,14 +13,14 @@ def plot_image_grid(output, img_size, n_row, steps=None, sample_path=None, save=
     plt.imshow(out_grid.cpu())
     plt.show()
 
-    if filename is not None:
-        result_dir = os.path.join(filename, title)
+    if result_dir is not None:
+        result_dir = os.path.join(result_dir, 'samples')
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
-        fig.savefig(result_dir)
+        fig.savefig(result_dir+'/epoch_%d' %(epoch))
         pass
 
-def plot_curve_error(data_mean, data_std, x_label, y_label, title, filename=None):
+def plot_curve_error(data_mean, data_std, x_label, y_label, title, result_dir=None):
 
     fig = plt.figure(figsize=(8, 6))
     plt.title(title)
@@ -36,14 +36,14 @@ def plot_curve_error(data_mean, data_std, x_label, y_label, title, filename=None
     plt.tight_layout()
     plt.show()
 
-    if filename is not None:
-        result_dir = os.path.join(filename, title)
+    if result_dir is not None:
+        result_dir = os.path.join(result_dir, title)
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         fig.savefig(result_dir)
         pass
 
-def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std, data2_label, x_label, y_label, title, filename=None):
+def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std, data2_label, x_label, y_label, title, result_dir=None):
     
     fig = plt.figure(figsize=(8, 6))
     plt.title(title)
@@ -63,8 +63,8 @@ def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std,
     plt.tight_layout()
     plt.show()
 
-    if filename is not None:
-        result_dir = os.path.join(filename, title)
+    if result_dir is not None:
+        result_dir = os.path.join(result_dir, title)
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         fig.savefig(result_dir)
