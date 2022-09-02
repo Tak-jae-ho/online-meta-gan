@@ -145,7 +145,7 @@ for epoch in tqdm(range(n_epoch)):
     loss_generator_std[epoch] = np.std(loss_generator_batch)
     prediction_real_mean[epoch] = np.mean(prediction_real_batch)
     prediction_real_std[epoch] = np.std(prediction_real_batch)
-    prediction_fake_mean[epoch] = np.mean(prediciton_fake_batch)
+    prediction_fake_mean[epoch] = np.mean(prediction_fake_batch)
     prediction_fake_std[epoch] = np.std(prediciton_fake_batch)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
