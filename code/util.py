@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import os
 from torchvision.utils import make_grid, save_image
 
 def plot_image_grid(output, img_size, n_row, steps=None, sample_path=None, save=False):
@@ -57,6 +58,8 @@ def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std,
     plt.show()
 
     if filename is not None:
-
-        fig.savefig(filename)
+        result_dir = filename + '/' + title
+        if not os.path.exists(result_dir):
+            os.mkdir(result_dir)
+        fig.savefig(result_dir)
         pass

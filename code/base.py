@@ -1,7 +1,8 @@
 # Generative Adversarial Networks
 import numpy as np
 import matplotlib.pyplot as plt
-from util import *
+import argparse
+from util import plot_image_grid, plot_curve_error, plot_curve_error2
 from models import Discriminator, Generator
 from tqdm import tqdm
 
@@ -11,6 +12,9 @@ from torchvision.datasets import MNIST
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from torchsummary import summary
+
+# Path
+parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
 
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
@@ -135,3 +139,5 @@ for epoch in tqdm(range(n_epoch)):
 # Plot Result
 generator.eval()
 discriminator.eval()
+
+plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', ars.result_path)
