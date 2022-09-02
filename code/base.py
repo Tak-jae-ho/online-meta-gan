@@ -18,7 +18,7 @@ from torchsummary import summary
 parser = argparse.ArgumentParser()
 parser.add_argument('--eval_freq', default=50, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
-
+args = parser.parse_args()
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
                                             transform=transforms.Compose([
