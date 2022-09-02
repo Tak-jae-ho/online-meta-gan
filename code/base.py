@@ -29,8 +29,8 @@ train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True,
 # Hyper-parameters
 n_epoch = 100
 batch_size = 128
-learning_rate_discriminator = 0.001
-learning_rate_generator = 0.001
+learning_rate_discriminator = 0.005
+learning_rate_generator = 0.005
 dim_latent = 32
 dim_channel = 1
 
@@ -137,6 +137,9 @@ for epoch in tqdm(range(n_epoch)):
         generated_images = generator(noise)
 
         out_grid = plot_image_grid(generated_images, 32, 10, epoch, args.result_path)
+
+        discriminator.train()
+        generator.train()
     
     # save losses & predicition values
     loss_discriminator_mean[epoch] = np.mean(loss_discriminator_batch)

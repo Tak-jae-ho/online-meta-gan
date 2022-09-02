@@ -25,7 +25,7 @@ def plot_curve_error(data_mean, data_std, x_label, y_label, title, result_dir=No
     fig = plt.figure(figsize=(8, 6))
     plt.title(title)
 
-    alpha = 0.3
+    alpha = 0.4
 
     plt.plot(range(len(data_mean)), data_mean, '-', color = 'red')
     plt.fill_between(range(len(data_mean)), data_mean - data_std, data_mean + data_std, facecolor = 'blue', alpha = alpha)
