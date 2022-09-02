@@ -107,7 +107,7 @@ for epoch in tqdm(range(n_epoch)):
         optimizer_generator.zero_grad()
         fake = generator(noise)
         prediction_fake = discriminator(fake)
-        label_real = torch.ones_like(prediction_fake, label_real)
+        label_real = torch.ones_like(prediction_fake)
         loss_generator = criterion(prediction_fake, label_real)
         loss_generator.backward()
         optimizer_discriminator.step()
