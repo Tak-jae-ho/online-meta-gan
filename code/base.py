@@ -146,7 +146,7 @@ for epoch in tqdm(range(n_epoch)):
     prediction_real_mean[epoch] = np.mean(prediction_real_batch)
     prediction_real_std[epoch] = np.std(prediction_real_batch)
     prediction_fake_mean[epoch] = np.mean(prediction_fake_batch)
-    prediction_fake_std[epoch] = np.std(prediciton_fake_batch)
+    prediction_fake_std[epoch] = np.std(prediction_fake_batch)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
     plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', args.result_path)
