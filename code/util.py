@@ -37,8 +37,10 @@ def plot_curve_error(data_mean, data_std, x_label, y_label, title, filename=None
     plt.show()
 
     if filename is not None:
-
-        fig.savefig(filename)
+        result_dir = os.path.join(filename, title)
+        if not os.path.exists(result_dir):
+            os.mkdir(result_dir)
+        fig.savefig(result_dir)
         pass
 
 def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std, data2_label, x_label, y_label, title, filename=None):
