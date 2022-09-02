@@ -131,3 +131,7 @@ for epoch in tqdm(range(n_epoch)):
     prediction_fake_std[epoch] = np.std(prediciton_fake_batch)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
+
+# Plot Result
+generator.eval()
+discriminator.eval()
