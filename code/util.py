@@ -13,8 +13,12 @@ def plot_image_grid(output, img_size, n_row, steps=None, sample_path=None, save=
     plt.imshow(out_grid.cpu())
     plt.show()
 
-    if save:
-        plt.savefig(sample_path + '/steps_%d' %(steps))
+    if filename is not None:
+        result_dir = os.path.join(filename, title)
+        if not os.path.exists(result_dir):
+            os.mkdir(result_dir)
+        fig.savefig(result_dir)
+        pass
 
 def plot_curve_error(data_mean, data_std, x_label, y_label, title, filename=None):
 
@@ -58,7 +62,7 @@ def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std,
     plt.show()
 
     if filename is not None:
-        result_dir = filename + '/' + title
+        result_dir = os.path.join(filename, title)
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         fig.savefig(result_dir)
