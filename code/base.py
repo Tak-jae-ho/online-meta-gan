@@ -16,7 +16,7 @@ from torchsummary import summary
 
 # Parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--eval_freq', default=1, type=int)
+parser.add_argument('--eval_freq', default=5, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
 args = parser.parse_args()
 
