@@ -176,7 +176,7 @@ for epoch in tqdm(range(n_epoch)):
         if not os.path.exists(fid_dir):
             os.mkdir(fid_dir)
         plt.savefig(fid_dir + '/fid_iteration')
-        plt.close()
+        plt.close('all')
 
         discriminator.train()
         generator.train()
