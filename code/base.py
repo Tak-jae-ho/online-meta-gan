@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
-from util import plot_image_grid, plot_curve_error, plot_curve_error2
+import os
+from util import plot_image_grid, plot_curve_error, plot_curve_error2, calculate_fid_given_batches, make_hidden
 from models import Discriminator, Generator
 from tqdm import tqdm
 
@@ -15,7 +16,7 @@ from torchsummary import summary
 
 # Parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--eval_freq', default=5, type=int)
+parser.add_argument('--eval_freq', default=1, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
 args = parser.parse_args()
 
@@ -27,10 +28,11 @@ train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True,
                                             ]))
 
 # Hyper-parameters
-n_epoch = 100
+n_epoch = 500
 batch_size = 128
-learning_rate_discriminator = 0.005
-learning_rate_generator = 0.005
+batch_size_fid = 16
+learning_rate_discriminator = 0.001
+learning_rate_generator = 0.002
 dim_latent = 32
 dim_channel = 1
 
@@ -53,6 +55,7 @@ print()
 
 # DataLoader
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+fid_loader = DataLoader(train_dataset, batch_size=batch_size_fid, shuffle=True, drop_last=True)
 
 # Loss function
 criterion = nn.BCELoss()
@@ -82,6 +85,7 @@ for epoch in tqdm(range(n_epoch)):
     loss_generator_batch = []
     prediction_real_batch = []
     prediction_fake_batch = []
+    fids = np.zeros(n_epoch)
 
     for x, y in tqdm(train_loader):
 
@@ -127,16 +131,52 @@ for epoch in tqdm(range(n_epoch)):
         prediction_real_batch.append(prediction_real.mean().item())
         prediction_fake_batch.append(prediction_fake.mean().item())
 
-    if epoch % args.eval_freq == 0:
+    if (epoch+1) % args.eval_freq == 0:
         # Plot Result
-        print("------------------Save Samples----------------------")
+        print("------------------Save Samples & fid----------------------")
         generator.eval()
         discriminator.eval()
         
         noise = torch.randn(100, dim_latent, 1, 1, device=device)
         generated_images = generator(noise)
 
-        out_grid = plot_image_grid(generated_images, 32, 10, epoch, args.result_path)
+        out_grid = plot_image_grid(generated_images, 32, 10, epoch+1, args.result_path)
+
+        real_batch = []
+        fake_batch = []
+
+        for i_fid, (real, _) in enumerate(fid_loader):
+            
+            fid_latent = make_hidden(batch_size, dim_latent)
+            fake = generator(fid_latent)
+            real_batch.append(real.type(torch.FloatTensor))
+            fake_batch.append(fake.type(torch.FloatTensor))
+
+            if i_fid * batch_size > 2500:
+                break
+
+        real_batch = torch.cat(real_batch, dim=0)
+        fake_batch = torch.cat(fake_batch, dim=0)
+
+        score = calculate_fid_given_batches(real_batch, fake_batch, batch_size=batch_size_fid)
+        for k in range(args.eval_freq):
+            fids[epoch-k-1] = score
+        
+        print("fid: %.5f" % score)
+
+        # save fid scores via iteration
+        plt.figure()
+        plt.plot(fids, '-', color='red', label='FID')
+        plt.xlabel('iteration')
+        plt.ylabel('FID')
+        plt.legend()
+        plt.tight_layout()
+
+        fid_dir = os.path.join(args.result_path, 'fid_iteration')
+        if not os.path.exists(fid_dir):
+            os.mkdir(fid_dir)
+        plt.savefig(fid_dir + '/fid_iteration')
+        plt.close()
 
         discriminator.train()
         generator.train()
