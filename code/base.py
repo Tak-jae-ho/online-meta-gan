@@ -78,6 +78,7 @@ prediction_fake_std = np.zeros(n_epoch) # D(G(z))
 # Train
 discriminator.train()
 generator.train()
+fids = np.zeros(n_epoch)
 
 for epoch in tqdm(range(n_epoch)):
 
@@ -85,7 +86,6 @@ for epoch in tqdm(range(n_epoch)):
     loss_generator_batch = []
     prediction_real_batch = []
     prediction_fake_batch = []
-    fids = np.zeros(n_epoch)
 
     for x, y in tqdm(train_loader):
 
@@ -160,6 +160,7 @@ for epoch in tqdm(range(n_epoch)):
 
         score = calculate_fid_given_batches(real_batch, fake_batch, batch_size=batch_size_fid)
         for k in range(args.eval_freq):
+            
             fids[epoch-k] = score
         
         print("fid: %.5f" % score)
