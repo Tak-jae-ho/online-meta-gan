@@ -160,7 +160,7 @@ for epoch in tqdm(range(n_epoch)):
 
         score = calculate_fid_given_batches(real_batch, fake_batch, batch_size=batch_size_fid)
         for k in range(args.eval_freq):
-            fids[epoch-k-1] = score
+            fids[epoch-k] = score
         
         print("fid: %.5f" % score)
 
