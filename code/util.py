@@ -44,7 +44,7 @@ def plot_image_grid(output, img_size, n_row, epoch, sample_folder, result_dir=No
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         fig.savefig(result_dir+'/epoch_%d' %(epoch))
-		fig.close('all')
+		plt.close('all')
         pass
 
 def plot_curve_error(data_mean, data_std, x_label, y_label, title, file_name,result_dir=None):
