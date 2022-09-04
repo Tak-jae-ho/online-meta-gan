@@ -16,9 +16,32 @@ from torchsummary import summary
 
 # Parser
 parser = argparse.ArgumentParser()
+parser.add_argument('--n_epoch', default=500, type=int)
+parser.add_argument('--batch_size', default=128, type=int)
+parser.add_argument('--batch_size_fid', default=16, type=int)
+parser.add_argument('--learning_rate_discriminator', default=0.001, type=float)
+parser.add_argument('--learning_rate_generator', default=0.002, type=float)
+parser.add_argument('--dim_latent', default=32, type=int)
+parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=5, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
+parser.add_argument('--Loss_Curve', default='Loss_Curve', type=str, help='Loss Curve image file&folder name')
+parser.add_argument('--Prediction_Curve', default='Prediction_Curve', type=str, help='Prediction Curve image file&folder name')
+parser.add_argument('--FID_score_Curve', default='FID_score_Curve', type=str, help='FID score Curve image file&folder name')
 args = parser.parse_args()
+
+n_epoch = args.n_epoch
+batch_size = args.batch_size
+batch_size_fid = args.batch_size_fid
+learning_rate_discriminator = args.learning_rate_discriminator
+learning_rate_generator = args.learning_rate_generator
+dim_latent = args.dim_latent
+dim_channel = args.dim_channel
+eval_freq = args.eval_freq
+result_path = args.result_path
+Loss_Curve  = args.Loss_Curve
+Prediction_Curve = args.Prediction_Curve
+FID_score_Curve = args.FID_score_Curve
 
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
@@ -131,7 +154,7 @@ for epoch in tqdm(range(n_epoch)):
         prediction_real_batch.append(prediction_real.mean().item())
         prediction_fake_batch.append(prediction_fake.mean().item())
 
-    if (epoch+1) % args.eval_freq == 0:
+    if (epoch+1) % eval_freq == 0:
         # Plot Result
         print("------------------Save Samples & fid----------------------")
         generator.eval()
@@ -140,7 +163,7 @@ for epoch in tqdm(range(n_epoch)):
         noise = torch.randn(100, dim_latent, 1, 1, device=device)
         generated_images = generator(noise)
 
-        out_grid = plot_image_grid(generated_images, 32, 10, epoch+1, args.result_path)
+        out_grid = plot_image_grid(generated_images, 32, 10, epoch+1, result_path)
 
         real_batch = []
         fake_batch = []
@@ -159,7 +182,7 @@ for epoch in tqdm(range(n_epoch)):
         fake_batch = torch.cat(fake_batch, dim=0)
 
         score = calculate_fid_given_batches(real_batch, fake_batch, batch_size=batch_size_fid)
-        for k in range(args.eval_freq):
+        for k in range(eval_freq):
             
             fids[epoch-k] = score
         
@@ -173,7 +196,7 @@ for epoch in tqdm(range(n_epoch)):
         plt.legend()
         plt.tight_layout()
 
-        fid_dir = os.path.join(args.result_path, 'fid_iteration')
+        fid_dir = os.path.join(result_path, FID_score_Curve)
         if not os.path.exists(fid_dir):
             os.mkdir(fid_dir)
         plt.savefig(fid_dir + '/fid_iteration')
@@ -193,5 +216,5 @@ for epoch in tqdm(range(n_epoch)):
     prediction_fake_std[epoch] = np.std(prediction_fake_batch)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
-    plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', args.result_path)
-    plot_curve_error2(prediction_real_mean, prediction_real_std, 'D(x)', prediction_fake_mean, prediction_fake_std, 'D(G(z))', 'epoch', 'Output', 'Prediction Curve', args.result_path)
+    plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', Loss_Curve, result_path)
+    plot_curve_error2(prediction_real_mean, prediction_real_std, 'D(x)', prediction_fake_mean, prediction_fake_std, 'D(G(z))', 'epoch', 'Output', Prediction_Curve, result_path)
