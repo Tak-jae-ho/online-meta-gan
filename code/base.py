@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--n_epoch', default=500, type=int)
 parser.add_argument('--batch_size', default=128, type=int)
 parser.add_argument('--batch_size_fid', default=16, type=int)
-parser.add_argument('--learning_rate_discriminator', default=0.001, type=float)
+parser.add_argument('--learning_rate_discriminator', default=0.002, type=float)
 parser.add_argument('--learning_rate_generator', default=0.002, type=float)
 parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
@@ -49,15 +49,6 @@ train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True,
                                             transforms.ToTensor(),
                                             transforms.Resize((32, 32)),
                                             ]))
-
-# Hyper-parameters
-n_epoch = 500
-batch_size = 128
-batch_size_fid = 16
-learning_rate_discriminator = 0.001
-learning_rate_generator = 0.002
-dim_latent = 32
-dim_channel = 1
 
 # Device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
