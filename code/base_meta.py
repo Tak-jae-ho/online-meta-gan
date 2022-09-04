@@ -33,7 +33,7 @@ parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta', type=st
 # MNIST : 6000 imgs per digits classes
 parser.add_argument('--data_per_class', default=100, type=int)
 parser.add_argument('--lambda_', default=0.1, type=float)
-parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta', type=str)
+parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta.pt', type=str)
 
 
 args = parser.parse_args()
