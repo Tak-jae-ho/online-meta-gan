@@ -138,7 +138,7 @@ for epoch in tqdm(range(n_epoch)):
 
         temp_weights_phi = [w.clone() for w in list(discriminator.parameters())]
 
-        grad = [theta - phi for theta, phi in zip(temp_weights_theta temp_weights_phi)]
+        grad = [theta - phi for theta, phi in zip(temp_weights_theta, temp_weights_phi)]
         params_discriminator = discriminator.state_dict()
 
         temp_weights_theta = [w - lambda_ * grad if grad is not None else w for w, grad in zip(temp_weights_theta, grad)]
