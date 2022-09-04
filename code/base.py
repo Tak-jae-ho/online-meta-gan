@@ -25,9 +25,9 @@ parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=5, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
-parser.add_argument('--Loss_Curve', default='Loss_Curve', type=str, help='Loss Curve image file&folder name')
-parser.add_argument('--Prediction_Curve', default='Prediction_Curve', type=str, help='Prediction Curve image file&folder name')
-parser.add_argument('--FID_score_Curve', default='FID_score_Curve', type=str, help='FID score Curve image file&folder name')
+parser.add_argument('--Loss_Curve', default='Loss_Curve_generic', type=str, help='Loss Curve image file&folder name')
+parser.add_argument('--Prediction_Curve', default='Prediction_Curve_generic', type=str, help='Prediction Curve image file&folder name')
+parser.add_argument('--FID_score_Curve', default='FID_score_Curve_generic', type=str, help='FID score Curve image file&folder name')
 args = parser.parse_args()
 
 n_epoch = args.n_epoch
@@ -187,10 +187,10 @@ for epoch in tqdm(range(n_epoch)):
         plt.legend()
         plt.tight_layout()
 
-        fid_dir = os.path.join(result_path, FID_score_Curve)
+        fid_dir = os.path.join(result_path, 'fid_iteration')
         if not os.path.exists(fid_dir):
             os.mkdir(fid_dir)
-        plt.savefig(fid_dir + '/fid_iteration')
+        plt.savefig(fid_dir + '/' + FID_score_Curve)
         plt.close('all')
 
         discriminator.train()
@@ -207,5 +207,5 @@ for epoch in tqdm(range(n_epoch)):
     prediction_fake_std[epoch] = np.std(prediction_fake_batch)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
-    plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', Loss_Curve, result_path)
-    plot_curve_error2(prediction_real_mean, prediction_real_std, 'D(x)', prediction_fake_mean, prediction_fake_std, 'D(G(z))', 'epoch', 'Output', Prediction_Curve, result_path)
+    plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', Loss_Curve, result_path)
+    plot_curve_error2(prediction_real_mean, prediction_real_std, 'D(x)', prediction_fake_mean, prediction_fake_std, 'D(G(z))', 'epoch', 'Output', 'Prediction Curve', Prediction_Curve, result_path)
