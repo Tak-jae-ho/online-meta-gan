@@ -45,7 +45,7 @@ def plot_image_grid(output, img_size, n_row, epoch, result_dir=None):
         fig.savefig(result_dir+'/epoch_%d' %(epoch))
         pass
 
-def plot_curve_error(data_mean, data_std, x_label, y_label, title, result_dir=None):
+def plot_curve_error(data_mean, data_std, x_label, y_label, title, file_name,result_dir=None):
 
     fig = plt.figure(figsize=(8, 6))
     plt.title(title)
@@ -65,10 +65,10 @@ def plot_curve_error(data_mean, data_std, x_label, y_label, title, result_dir=No
         result_dir = os.path.join(result_dir, title)
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
-        fig.savefig(result_dir + '/' + title)
+        fig.savefig(result_dir + '/' + file_name)
         pass
 
-def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std, data2_label, x_label, y_label, title, result_dir=None):
+def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std, data2_label, x_label, y_label, title, file_name, result_dir=None):
     
     fig = plt.figure(figsize=(8, 6))
     plt.title(title)
@@ -92,8 +92,25 @@ def plot_curve_error2(data1_mean, data1_std, data1_label, data2_mean, data2_std,
         result_dir = os.path.join(result_dir, title)
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
-        fig.savefig(result_dir + '/' + title)
+        fig.savefig(result_dir + '/' + file_name)
         pass
+
+def get_data_subsampler(dataset, data_per_class):
+    assert data_per_class < len(dataset) / len(dataset.classes)
+    subset_idx = []
+    
+    for label in dataset.targets.unique():
+        class_idx = (dataset.targets == label).nonzero(as_tuple=True)
+        rand_select = torch.randint(0, len(class_idx[0]), (data_per_class, ))
+        class_idx = class_idx[0][rand_select]
+        subset_idx.append(class_idx)
+    
+    subset_idx = torch.cat(subset_idx)
+    
+    return SubsetRandomSampler(indices=subset_idx)
+
+
+##################################################### FOR FID_SCORE #####################################################
 
 FID_WEIGHTS_URL = 'https://github.com/mseitzer/pytorch-fid/releases/download/fid_weights/pt_inception-2015-12-05-6726825d.pth'
 
