@@ -80,7 +80,7 @@ print()
 
 # DataLoader
 subsampler = get_data_subsampler(train_dataset, data_per_class)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, sampler=subsampler)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, drop_last=True, sampler=subsampler)
 fid_loader = DataLoader(train_dataset, batch_size=batch_size_fid, shuffle=True, drop_last=True)
 
 # Loss function
@@ -144,9 +144,9 @@ for epoch in tqdm(range(n_epoch)):
         temp_weights_theta = [w - lambda_ * grad if grad is not None else w for w, grad in zip(temp_weights_theta, grad)]
 
         for n, key in enumerate(list(params_discriminator.keys())):
-            params_discriminator_theta[key] = temp_weights_theta[n]
+            params_discriminator[key] = temp_weights_theta[n]
         
-        torch.save(params_discriminator_theta, PATH_discriminator_theta)
+        torch.save(params_discriminator, PATH_discriminator_theta)
         discriminator.load_state_dict(torch.load(PATH_discriminator_theta))
 
         # update generator: maximize log(D(G(z)))

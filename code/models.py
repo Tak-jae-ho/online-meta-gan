@@ -12,7 +12,7 @@ class Discriminator(nn.Module):
         self.dim_feautre = dim_feature
         threshold_ReLU   = 0.2
 
-        self.feature = nn.Sequential(
+        self.network = nn.Sequential(
                                      nn.Conv2d(in_channel, dim_feature * 1, kernel_size=3, stride=2, padding=1, bias=True),
                                      nn.LeakyReLU(threshold_ReLU, inplace=True),
                                      
@@ -27,30 +27,18 @@ class Discriminator(nn.Module):
                                      
                                      nn.Conv2d(dim_feature * 8, dim_feature * 16, kernel_size=3, stride=2, padding=1, bias=True),
                                      nn.LeakyReLU(threshold_ReLU, inplace=True),
+                                     nn.Flatten(),
+                                     nn.Linear(dim_feature * 16, dim_feature * 8, bias=True),
+                                     nn.LeakyReLU(threshold_ReLU, inplace=True),
+                                     nn.Linear(dim_feature * 8, dim_feature * 4, bias=True),
+                                     nn.LeakyReLU(threshold_ReLU, inplace=True),
+                                     nn.Linear(dim_feature * 4, dim_feature * 2, bias=True),
+                                     nn.LeakyReLU(threshold_ReLU, inplace=True),
+                                     nn.Linear(dim_feature * 2, dim_feature * 1, bias=True),
+                                     nn.LeakyReLU(threshold_ReLU, inplace=True),
+                                     nn.Linear(dim_feature * 1, out_channel, bias=True),
+                                     nn.Sigmoid()
                                     )
-                                    
-        self.classifier = nn.Sequential(
-                                        nn.Linear(dim_feature * 16, dim_feature * 8, bias=True),
-                                        nn.LeakyReLU(threshold_ReLU, inplace=True),
-                                        
-                                        nn.Linear(dim_feature * 8, dim_feature * 4, bias=True),
-                                        nn.LeakyReLU(threshold_ReLU, inplace=True),
-                                        
-                                        nn.Linear(dim_feature * 4, dim_feature * 2, bias=True),
-                                        nn.LeakyReLU(threshold_ReLU, inplace=True),
-                                        
-                                        nn.Linear(dim_feature * 2, dim_feature * 1, bias=True),
-                                        nn.LeakyReLU(threshold_ReLU, inplace=True),
-                                        
-                                        nn.Linear(dim_feature * 1, out_channel, bias=True),
-                                        nn.Sigmoid()
-                                        ) 
-                                        
-        self.network = nn.Sequential(
-            self.feature,
-            nn.Flatten(),
-            self.classifier,
-        )
             
         self.initialize_weight()
 
