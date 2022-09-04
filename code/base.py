@@ -25,6 +25,7 @@ parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=5, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
+parser.add_argument('--sample_folder', default='sample_generic', type=str, help='save results')
 parser.add_argument('--Loss_Curve', default='Loss_Curve_generic', type=str, help='Loss Curve image file name')
 parser.add_argument('--Prediction_Curve', default='Prediction_Curve_generic', type=str, help='Prediction Curve image file name')
 parser.add_argument('--FID_score_Curve', default='FID_score_Curve_generic', type=str, help='FID score Curve image file name')
@@ -42,6 +43,7 @@ result_path = args.result_path
 Loss_Curve  = args.Loss_Curve
 Prediction_Curve = args.Prediction_Curve
 FID_score_Curve = args.FID_score_Curve
+sample_folder = args.sample_folder
 
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
@@ -154,7 +156,7 @@ for epoch in tqdm(range(n_epoch)):
         noise = torch.randn(100, dim_latent, 1, 1, device=device)
         generated_images = generator(noise)
 
-        out_grid = plot_image_grid(generated_images, 32, 10, epoch+1, result_path)
+        out_grid = plot_image_grid(generated_images, 32, 10, epoch+1, sample_folder, result_path)
 
         real_batch = []
         fake_batch = []

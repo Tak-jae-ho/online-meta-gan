@@ -28,7 +28,7 @@ except ImportError:
 	def tqdm(x): return x
 
 
-def plot_image_grid(output, img_size, n_row, epoch, result_dir=None):
+def plot_image_grid(output, img_size, n_row, epoch, sample_folder, result_dir=None):
 
     out_grid = make_grid(output, normalize=True, nrow=n_row, scale_each=True, padding=int(0.125*img_size)).permute(1,2,0)
 
@@ -40,7 +40,7 @@ def plot_image_grid(output, img_size, n_row, epoch, result_dir=None):
     plt.show()
 
     if result_dir is not None:
-        result_dir = os.path.join(result_dir, 'samples')
+        result_dir = os.path.join(result_dir, sample_folder)
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         fig.savefig(result_dir+'/epoch_%d' %(epoch))
