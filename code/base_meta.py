@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 import os
-from util import plot_image_grid, plot_curve_error, plot_curve_error2, calculate_fid_given_batches, make_hidden
+from util import plot_image_grid, plot_curve_error, plot_curve_error2, calculate_fid_given_batches, make_hidden, get_data_subsampler
 from models import Discriminator, Generator
 from tqdm import tqdm
 
@@ -25,9 +25,17 @@ parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=5, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
-parser.add_argument('--Loss_Curve', default='Loss_Curve_generic', type=str, help='Loss Curve image file name')
-parser.add_argument('--Prediction_Curve', default='Prediction_Curve_generic', type=str, help='Prediction Curve image file name')
-parser.add_argument('--FID_score_Curve', default='FID_score_Curve_generic', type=str, help='FID score Curve image file name')
+parser.add_argument('--Loss_Curve', default='Loss_Curve_meta', type=str, help='Loss Curve image file&folder name')
+parser.add_argument('--Prediction_Curve', default='Prediction_Curve_meta', type=str, help='Prediction Curve image file&folder name')
+parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta', type=str, help='FID score Curve image file&folder name')
+
+###################### FOR META-TRAINING ######################
+# MNIST : 6000 imgs per digits classes
+parser.add_argument('--data_per_class', default=100, type=int)
+parser.add_argument('--lambda_', default=0.1, type=float)
+parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta', type=str)
+
+
 args = parser.parse_args()
 
 n_epoch = args.n_epoch
@@ -42,6 +50,9 @@ result_path = args.result_path
 Loss_Curve  = args.Loss_Curve
 Prediction_Curve = args.Prediction_Curve
 FID_score_Curve = args.FID_score_Curve
+data_per_class = args.data_per_class
+lambda_ = args.lambda_
+PATH_discriminator_theta = args.PATH_discriminator_theta
 
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
@@ -68,7 +79,8 @@ summary(discriminator, input_size=(dim_channel, 32, 32))
 print()
 
 # DataLoader
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+subsampler = get_data_subsampler(train_dataset, data_per_class)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, sampler=subsampler)
 fid_loader = DataLoader(train_dataset, batch_size=batch_size_fid, shuffle=True, drop_last=True)
 
 # Loss function
@@ -105,6 +117,9 @@ for epoch in tqdm(range(n_epoch)):
 
         # update discriminator: maximize log(D(x)) + log(1 - D(G(z)))
         optimizer_discriminator.zero_grad()
+        
+        temp_weights_theta = [w.clone() for w in list(discriminator.parameters())]
+        
         # real images
         real = x.to(device)
         prediction_real = discriminator(real)
@@ -120,6 +135,19 @@ for epoch in tqdm(range(n_epoch)):
         loss_discriminator = (real_loss + fake_loss) / 2.0
         loss_discriminator.backward()
         optimizer_discriminator.step()
+
+        temp_weights_phi = [w.clone() for w in list(discriminator.parameters())]
+
+        grad = [theta - phi for theta, phi in zip(temp_weights_theta temp_weights_phi)]
+        params_discriminator = discriminator.state_dict()
+
+        temp_weights_theta = [w - lambda_ * grad if grad is not None else w for w, grad in zip(temp_weights_theta, grad)]
+
+        for n, key in enumerate(list(params_discriminator.keys())):
+            params_discriminator_theta[key] = temp_weights_theta[n]
+        
+        torch.save(params_discriminator_theta, PATH_discriminator_theta)
+        discriminator.load_state_dict(torch.load(PATH_discriminator_theta))
 
         # update generator: maximize log(D(G(z)))
         optimizer_generator.zero_grad()
