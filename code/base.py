@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 import os
-from util import plot_image_grid, plot_curve_error, plot_curve_error2, calculate_fid_given_batches, make_hidden
+from util import plot_image_grid, plot_curve_error, plot_curve_error2, calculate_fid_given_batches, make_hidden, get_data_subsampler
 from models import Discriminator, Generator
 from tqdm import tqdm
 
@@ -16,8 +16,8 @@ from torchsummary import summary
 
 # Parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--n_epoch', default=500, type=int)
-parser.add_argument('--batch_size', default=128, type=int)
+parser.add_argument('--n_epoch', default=5000, type=int)
+parser.add_argument('--batch_size', default=64, type=int)
 parser.add_argument('--batch_size_fid', default=16, type=int)
 parser.add_argument('--learning_rate_discriminator', default=0.001, type=float)
 parser.add_argument('--learning_rate_generator', default=0.002, type=float)
@@ -25,10 +25,12 @@ parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=5, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
-parser.add_argument('--sample_folder', default='sample_generic', type=str, help='save results')
-parser.add_argument('--Loss_Curve', default='Loss_Curve_generic', type=str, help='Loss Curve image file name')
-parser.add_argument('--Prediction_Curve', default='Prediction_Curve_generic', type=str, help='Prediction Curve image file name')
-parser.add_argument('--FID_score_Curve', default='FID_score_Curve_generic', type=str, help='FID score Curve image file name')
+parser.add_argument('--sample_folder', default='sample_generic_1280', type=str, help='save results')
+parser.add_argument('--Loss_Curve', default='Loss_Curve_generic_1280', type=str, help='Loss Curve image file name')
+parser.add_argument('--Prediction_Curve', default='Prediction_Curve_generic_1280', type=str, help='Prediction Curve image file name')
+parser.add_argument('--FID_score_Curve', default='FID_score_Curve_generic_1280', type=str, help='FID score Curve image file name')
+parser.add_argument('--data_per_class', default=128, type=int)
+
 args = parser.parse_args()
 
 n_epoch = args.n_epoch
@@ -44,6 +46,7 @@ Loss_Curve  = args.Loss_Curve
 Prediction_Curve = args.Prediction_Curve
 FID_score_Curve = args.FID_score_Curve
 sample_folder = args.sample_folder
+data_per_class = args.data_per_class
 
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
@@ -70,7 +73,8 @@ summary(discriminator, input_size=(dim_channel, 32, 32))
 print()
 
 # DataLoader
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+subsampler = get_data_subsampler(train_dataset, data_per_class)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, drop_last=True, sampler=subsampler)
 fid_loader = DataLoader(train_dataset, batch_size=batch_size_fid, shuffle=True, drop_last=True)
 
 # Loss function
