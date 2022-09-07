@@ -16,8 +16,8 @@ from torchsummary import summary
 
 # Parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--n_epoch', default=5000, type=int)
-parser.add_argument('--batch_size', default=8, type=int)
+parser.add_argument('--n_epoch', default=10000, type=int)
+parser.add_argument('--batch_size', default=32, type=int)
 parser.add_argument('--batch_size_fid', default=16, type=int)
 parser.add_argument('--learning_rate_discriminator', default=0.001, type=float)
 parser.add_argument('--learning_rate_generator', default=0.002, type=float)
