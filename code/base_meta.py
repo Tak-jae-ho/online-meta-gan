@@ -17,10 +17,10 @@ from torchsummary import summary
 # Parser
 parser = argparse.ArgumentParser()
 parser.add_argument('--n_epoch', default=10000, type=int)
-parser.add_argument('--batch_size', default=32, type=int)
+parser.add_argument('--batch_size', default=64, type=int)
 parser.add_argument('--batch_size_fid', default=16, type=int)
-parser.add_argument('--learning_rate_discriminator', default=0.001, type=float)
-parser.add_argument('--learning_rate_generator', default=0.002, type=float)
+parser.add_argument('--learning_rate_discriminator', default=0.002, type=float)
+parser.add_argument('--learning_rate_generator', default=0.003, type=float)
 parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=50, type=int)
@@ -32,8 +32,8 @@ parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta', type=st
 
 ###################### FOR META-TRAINING ######################
 # MNIST : 6000 imgs per digits classes
-parser.add_argument('--data_per_class', default=16, type=int)
-parser.add_argument('--lambda_', default=0.1, type=float)
+parser.add_argument('--data_per_class', default=32, type=int)
+parser.add_argument('--lambda_', default=0.05, type=float)
 parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta.pt', type=str)
 
 
