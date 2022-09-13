@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 import os
+import random
 from util import plot_image_grid, plot_curve_error, plot_curve_error2, calculate_fid_given_batches, make_hidden, get_data_subsampler
 from models import Discriminator, Generator
 from tqdm import tqdm
@@ -25,14 +26,15 @@ parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=50, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
-parser.add_argument('--sample_folder', default='sample_meta', type=str, help='save results')
-parser.add_argument('--Loss_Curve', default='Loss_Curve_meta', type=str, help='Loss Curve image file&folder name')
-parser.add_argument('--Prediction_Curve', default='Prediction_Curve_meta', type=str, help='Prediction Curve image file&folder name')
-parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta', type=str, help='FID score Curve image file&folder name')
+parser.add_argument('--sample_folder', default='sample_meta_online', type=str, help='save results')
+parser.add_argument('--Loss_Curve', default='Loss_Curve_meta_online', type=str, help='Loss Curve image file&folder name')
+parser.add_argument('--Prediction_Curve', default='Prediction_Curve_meta_online', type=str, help='Prediction Curve image file&folder name')
+parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta_online', type=str, help='FID score Curve image file&folder name')
 
 ###################### FOR META-TRAINING ######################
 # MNIST : 6000 imgs per digits classes
-parser.add_argument('--data_per_class', default=32, type=int)
+parser.add_argument('--data_per_class', default=320, type=int)
+parser.add_argument('--select_digits', default=[0], type=list)
 parser.add_argument('--lambda_', default=0.05, type=float)
 parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta.pt', type=str)
 
@@ -55,6 +57,7 @@ sample_folder = args.sample_folder
 data_per_class = args.data_per_class
 lambda_ = args.lambda_
 PATH_discriminator_theta = args.PATH_discriminator_theta
+select_digits = args.select_digits
 
 # Load Data
 train_dataset = MNIST('/nas/dataset/MNIST', train=True, download=True, 
@@ -81,8 +84,19 @@ summary(discriminator, input_size=(dim_channel, 32, 32))
 print()
 
 # DataLoader
-subsampler = get_data_subsampler(train_dataset, data_per_class)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, drop_last=True, sampler=subsampler)
+# subsampler = get_data_subsampler(train_dataset, data_per_class)
+data_list = list(range(len(train_dataset)//10))
+random.shuffle(data_list)
+idx_origin = data_list[:data_per_class]
+idx = []
+for digits in select_digits:
+    idx_plus = [idx_origin[i]+(len(train_dataset)//10)*digits for i in range(len(idx_origin))]
+    idx += idx_plus
+random.shuffle(idx)
+train_dataset_ = torch.utils.data.Subset(train_dataset, idx)
+
+
+train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
 fid_loader = DataLoader(train_dataset, batch_size=batch_size_fid, shuffle=True, drop_last=True)
 
 # Loss function
