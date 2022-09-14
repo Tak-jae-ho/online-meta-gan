@@ -85,6 +85,13 @@ print()
 
 # DataLoader
 # subsampler = get_data_subsampler(train_dataset, data_per_class)
+subset_idx = []
+for label in select_digits:
+    class_idx = (train_dataset.targets == label).nonzero(as_tuple=True)
+    rand_select = torch.randint(0, len(class_idx[0]), (data_per_class, ))
+    class_idx = class_idx[0][rand_select]
+    subset_idx.append(class_idx)
+"""
 data_list = list(range(len(train_dataset)//10))
 random.shuffle(data_list)
 idx_origin = data_list[:data_per_class]
@@ -93,7 +100,8 @@ for digits in select_digits:
     idx_plus = [idx_origin[i]+(len(train_dataset)//10)*digits for i in range(len(idx_origin))]
     idx += idx_plus
 random.shuffle(idx)
-train_dataset_ = torch.utils.data.Subset(train_dataset, idx)
+"""
+train_dataset_ = torch.utils.data.Subset(train_dataset, class_idx)
 
 
 train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
