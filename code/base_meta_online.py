@@ -33,7 +33,7 @@ parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta_online', 
 
 ###################### FOR META-TRAINING ######################
 # MNIST : 6000 imgs per digits classes
-parser.add_argument('--data_per_class', default=320, type=int)
+parser.add_argument('--data_per_class', default=64, type=int)
 parser.add_argument('--select_digits', default=[0,1,2,3,4], type=list)
 parser.add_argument('--lambda_', default=0.05, type=float)
 parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta.pt', type=str)
@@ -90,7 +90,8 @@ for label in select_digits:
     class_idx = (train_dataset.targets == label).nonzero(as_tuple=True)
     rand_select = torch.randint(0, len(class_idx[0]), (data_per_class, ))
     class_idx = class_idx[0][rand_select]
-    subset_idx.append(class_idx)
+    subset_idx += class_idx
+print(len(subset_idx))
 train_dataset_ = torch.utils.data.Subset(train_dataset, subset_idx)
 
 
