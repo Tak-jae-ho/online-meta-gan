@@ -33,7 +33,7 @@ parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta_online', 
 
 ###################### FOR META-TRAINING ######################
 # MNIST : 6000 imgs per digits classes
-parser.add_argument('--data_per_class', default=64, type=int)
+parser.add_argument('--data_per_class', default=64*5, type=int)
 parser.add_argument('--select_digits', default=[0,1,2,3,4], type=list)
 parser.add_argument('--lambda_', default=0.05, type=float)
 parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta.pt', type=str)
@@ -85,17 +85,19 @@ print()
 
 # DataLoader
 # subsampler = get_data_subsampler(train_dataset, data_per_class)
+
+"""
 subset_idx = []
 for label in select_digits:
     class_idx = (train_dataset.targets == label).nonzero(as_tuple=True)
     rand_select = torch.randint(0, len(class_idx[0]), (data_per_class, ))
     class_idx = class_idx[0][rand_select]
     subset_idx += class_idx
-print(len(subset_idx))
 train_dataset_ = torch.utils.data.Subset(train_dataset, subset_idx)
+"""
 
 
-train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
+# train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
 fid_loader = DataLoader(train_dataset, batch_size=batch_size_fid, shuffle=True, drop_last=True)
 
 # Loss function
@@ -120,6 +122,7 @@ prediction_fake_std = np.zeros(n_epoch) # D(G(z))
 discriminator.train()
 generator.train()
 fids = np.zeros(n_epoch)
+num = 0
 
 for epoch in tqdm(range(n_epoch)):
 
@@ -128,7 +131,20 @@ for epoch in tqdm(range(n_epoch)):
     prediction_real_batch = []
     prediction_fake_batch = []
 
-    #if epoch % (n_epoch // len(select_digits)) == 0:
+    if epoch % (n_epoch // len(select_digits)) == 0:
+
+        subset_idx = []
+        
+        class_idx = (train_dataset.targets == select_digits[num]).nonzero(as_tuple=True)
+        rand_select = torch.randint(0, len(class_idx[0]), (data_per_class, ))
+        class_idx = class_idx[0][rand_select]
+        subset_idx += class_idx
+
+        train_dataset_ = torch.utils.data.Subset(train_dataset, subset_idx)
+        train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
+
+        num += 1
+
 
     for x, y in tqdm(train_loader):
 
