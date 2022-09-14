@@ -34,7 +34,7 @@ parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta_online', 
 ###################### FOR META-TRAINING ######################
 # MNIST : 6000 imgs per digits classes
 parser.add_argument('--data_per_class', default=320, type=int)
-parser.add_argument('--select_digits', default=[0], type=list)
+parser.add_argument('--select_digits', default=[0,1,2,3,4], type=list)
 parser.add_argument('--lambda_', default=0.05, type=float)
 parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta.pt', type=str)
 
@@ -91,17 +91,7 @@ for label in select_digits:
     rand_select = torch.randint(0, len(class_idx[0]), (data_per_class, ))
     class_idx = class_idx[0][rand_select]
     subset_idx.append(class_idx)
-"""
-data_list = list(range(len(train_dataset)//10))
-random.shuffle(data_list)
-idx_origin = data_list[:data_per_class]
-idx = []
-for digits in select_digits:
-    idx_plus = [idx_origin[i]+(len(train_dataset)//10)*digits for i in range(len(idx_origin))]
-    idx += idx_plus
-random.shuffle(idx)
-"""
-train_dataset_ = torch.utils.data.Subset(train_dataset, class_idx)
+train_dataset_ = torch.utils.data.Subset(train_dataset, subset_idx)
 
 
 train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
@@ -136,6 +126,8 @@ for epoch in tqdm(range(n_epoch)):
     loss_generator_batch = []
     prediction_real_batch = []
     prediction_fake_batch = []
+
+    #if epoch % (n_epoch // len(select_digits)) == 0:
 
     for x, y in tqdm(train_loader):
 
