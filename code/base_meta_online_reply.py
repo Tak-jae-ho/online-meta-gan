@@ -27,17 +27,17 @@ parser.add_argument('--dim_latent', default=32, type=int)
 parser.add_argument('--dim_channel', default=1, type=int)
 parser.add_argument('--eval_freq', default=50, type=int)
 parser.add_argument('--result_path', default='/nas/users/jaeho/online-meta-gan/result', type=str, help='save results')
-parser.add_argument('--sample_folder', default='sample_meta_online_reply', type=str, help='save results')
-parser.add_argument('--Loss_Curve', default='Loss_Curve_meta_online_reply', type=str, help='Loss Curve image file&folder name')
-parser.add_argument('--Prediction_Curve', default='Prediction_Curve_meta_online_reply', type=str, help='Prediction Curve image file&folder name')
-parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta_online_reply', type=str, help='FID score Curve image file&folder name')
+parser.add_argument('--sample_folder', default='sample_meta_online_reply_increase', type=str, help='save results')
+parser.add_argument('--Loss_Curve', default='Loss_Curve_meta_online_reply_increase', type=str, help='Loss Curve image file&folder name')
+parser.add_argument('--Prediction_Curve', default='Prediction_Curve_meta_online_reply_increase', type=str, help='Prediction Curve image file&folder name')
+parser.add_argument('--FID_score_Curve', default='FID_score_Curve_meta_online_reply_increase', type=str, help='FID score Curve image file&folder name')
 
 ###################### FOR META-TRAINING ######################
 # MNIST : 6000 imgs per digits classes
 parser.add_argument('--data_per_class', default=64*2, type=int)
 parser.add_argument('--select_digits', default=[0,5,6,7,8], type=list)
 parser.add_argument('--lambda_', default=0.05, type=float)
-parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta_reply.pt', type=str)
+parser.add_argument('--PATH_discriminator_theta', default='./discriminator_theta/PATH_discriminator_theta_reply_increase.pt', type=str)
 
 
 args = parser.parse_args()
@@ -144,6 +144,9 @@ for epoch in tqdm(range(n_epoch)):
         train_dataset_ = torch.utils.data.Subset(train_dataset, subset_idx)
         train_loader = DataLoader(train_dataset_, batch_size=batch_size, shuffle=True, drop_last=True)
 
+        if epoch > 0:
+            old_generator = copy.deepcopy(generator)
+
         num += 1
 
 
@@ -157,9 +160,9 @@ for epoch in tqdm(range(n_epoch)):
         # real images
         real = x.to(device)
 
-        if i > 0 :
+        if num > 1 :
             # generative replay
-            noise = torch.randn(len(y) * i, dim_latent, 1, 1, device=device)
+            noise = torch.randn(len(y)*(num-1), dim_latent, 1, 1, device=device)
             real_old = old_generator(noise)
             real = torch.cat((real, real_old))
 
@@ -274,8 +277,6 @@ for epoch in tqdm(range(n_epoch)):
     prediction_real_std[epoch] = np.std(prediction_real_batch)
     prediction_fake_mean[epoch] = np.mean(prediction_fake_batch)
     prediction_fake_std[epoch] = np.std(prediction_fake_batch)
-
-    old_generator = copy.deepcopy(generator)
 
     print('epoch: {}/{} loss_discriminator: {:.6f} loss_generator: {:.6f} prediction_real: {:.6f} prediction_fake: {:.6f}' .format(epoch + 1, n_epoch, loss_discriminator_mean[epoch], loss_generator_mean[epoch], prediction_real_mean[epoch], prediction_fake_mean[epoch]))
     plot_curve_error2(loss_discriminator_mean, loss_discriminator_std, 'Discriminator', loss_generator_mean, loss_generator_std, 'Generator', 'epoch', 'loss', 'Loss Curve', Loss_Curve, result_path)
