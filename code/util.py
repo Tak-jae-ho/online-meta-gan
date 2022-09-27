@@ -44,7 +44,7 @@ def plot_image_grid(output, img_size, n_row, epoch, sample_folder, result_dir=No
         if not os.path.exists(result_dir):
             os.mkdir(result_dir)
         fig.savefig(result_dir+'/epoch_%d' %(epoch))
-        fig.savefig(result_dir+'/epoch_last')
+        fig.savefig(result_dir+'/a_epoch_last')
         plt.close('all')
         pass
 
